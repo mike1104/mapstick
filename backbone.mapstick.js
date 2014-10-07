@@ -698,10 +698,6 @@
 
     Polyline.prototype.properties = ["clickable", "draggable", "editable", "geodesic", "icons", "map", "path", "strokeColor", "strokeOpacity", "strokeWeight", "visible", "zIndex"];
 
-    Polyline.prototype.defaultOptions = {
-      path: new google.maps.MVCArray
-    };
-
     return Polyline;
 
   })(MapStick.OverlayWithPath);
@@ -914,22 +910,22 @@
 
   })(MapStick.Overlay);
 
-  MapStick.CollectionView = (function(_super) {
-    __extends(CollectionView, _super);
+  MapStick.OverlayCollection = (function(_super) {
+    __extends(OverlayCollection, _super);
 
-    CollectionView.prototype.itemView = MapStick.Overlay;
+    OverlayCollection.prototype.itemView = MapStick.Overlay;
 
-    CollectionView.prototype.itemType = "model";
+    OverlayCollection.prototype.itemType = "model";
 
-    CollectionView.prototype.triggerMethod = Marionette.triggerMethod;
+    OverlayCollection.prototype.triggerMethod = Marionette.triggerMethod;
 
-    CollectionView.prototype.viewOptions = ['collection', 'model', 'map'];
+    OverlayCollection.prototype.viewOptions = ['collection', 'model', 'map'];
 
-    CollectionView.prototype.showing = false;
+    OverlayCollection.prototype.showing = false;
 
-    CollectionView.prototype.collectionEvents = {};
+    OverlayCollection.prototype.collectionEvents = {};
 
-    function CollectionView(options) {
+    function OverlayCollection(options) {
       this.closeChildren = __bind(this.closeChildren, this);
       this.close = __bind(this.close, this);
       this.triggerRendered = __bind(this.triggerRendered, this);
@@ -961,7 +957,7 @@
       }
     }
 
-    CollectionView.prototype._initialCollection = function() {
+    OverlayCollection.prototype._initialCollection = function() {
       return this.collection.each((function(_this) {
         return function(item, index) {
           var ItemView;
@@ -971,7 +967,7 @@
       })(this));
     };
 
-    CollectionView.prototype._initialEvents = function() {
+    OverlayCollection.prototype._initialEvents = function() {
       if (this.collection) {
         this.listenTo(this.collection, "add", this.addChildView);
         this.listenTo(this.collection, "remove", this.removeItemView);
@@ -979,7 +975,7 @@
       }
     };
 
-    CollectionView.prototype.listenToCollection = function() {
+    OverlayCollection.prototype.listenToCollection = function() {
       if (this.collection) {
         return _.each(this.collectionEvents, (function(_this) {
           return function(function_name, event_name) {
@@ -992,7 +988,7 @@
       }
     };
 
-    CollectionView.prototype.removeListeners = function() {
+    OverlayCollection.prototype.removeListeners = function() {
       if (this.collection) {
         this.stopListening(this.collection, "add");
         this.stopListening(this.collection, "remove");
@@ -1000,13 +996,13 @@
       }
     };
 
-    CollectionView.prototype.addChildView = function(item, collection, options) {
+    OverlayCollection.prototype.addChildView = function(item, collection, options) {
       var ItemView;
       ItemView = this.getItemView(item);
       return this.addItemView(item, ItemView);
     };
 
-    CollectionView.prototype.show = function(map) {
+    OverlayCollection.prototype.show = function(map) {
       this.showing = true;
       if (map) {
         this.map = map;
@@ -1014,12 +1010,12 @@
       return this.children.apply("show");
     };
 
-    CollectionView.prototype.hide = function() {
+    OverlayCollection.prototype.hide = function() {
       this.showing = false;
       return this.children.apply("hide");
     };
 
-    CollectionView.prototype.render = function() {
+    OverlayCollection.prototype.render = function() {
       this.isClosed = false;
       this.triggerBeforeRender();
       this._renderChildren();
@@ -1027,12 +1023,12 @@
       return this;
     };
 
-    CollectionView.prototype._renderChildren = function() {
+    OverlayCollection.prototype._renderChildren = function() {
       this.closeChildren();
       return this.showCollection();
     };
 
-    CollectionView.prototype.showCollection = function() {
+    OverlayCollection.prototype.showCollection = function() {
       return this.collection.each((function(_this) {
         return function(item) {
           var ItemView;
@@ -1042,7 +1038,7 @@
       })(this));
     };
 
-    CollectionView.prototype.getItemView = function(item) {
+    OverlayCollection.prototype.getItemView = function(item) {
       var itemView;
       itemView = MapStick.getOption(this, "itemView");
       if (!itemView) {
@@ -1051,7 +1047,7 @@
       return itemView;
     };
 
-    CollectionView.prototype.addItemView = function(item, ItemView, index) {
+    OverlayCollection.prototype.addItemView = function(item, ItemView, index) {
       var itemViewOptions, view;
       itemViewOptions = MapStick.getOption(this, "itemViewOptions");
       if (_.isFunction(itemViewOptions)) {
@@ -1069,7 +1065,7 @@
       return view;
     };
 
-    CollectionView.prototype.buildItemView = function(item, ItemViewType, itemViewOptions) {
+    OverlayCollection.prototype.buildItemView = function(item, ItemViewType, itemViewOptions) {
       var options, view;
       options = _.extend({
         model: item,
@@ -1079,13 +1075,13 @@
       return view;
     };
 
-    CollectionView.prototype.removeItemView = function(item) {
+    OverlayCollection.prototype.removeItemView = function(item) {
       var view;
       view = this.children.findByModel(item);
       return this.removeChildView(view);
     };
 
-    CollectionView.prototype.removeChildView = function(view) {
+    OverlayCollection.prototype.removeChildView = function(view) {
       if (view) {
         if (view.close) {
           view.close();
@@ -1098,21 +1094,21 @@
       return this.triggerMethod("item:removed", view);
     };
 
-    CollectionView.prototype._initChildViewStorage = function() {
+    OverlayCollection.prototype._initChildViewStorage = function() {
       return this.children = new MapStick.ChildViewContainer;
     };
 
-    CollectionView.prototype.triggerBeforeRender = function() {
+    OverlayCollection.prototype.triggerBeforeRender = function() {
       this.triggerMethod("before:render", this);
       return this.triggerMethod("collection:before:render", this);
     };
 
-    CollectionView.prototype.triggerRendered = function() {
+    OverlayCollection.prototype.triggerRendered = function() {
       this.triggerMethod("render", this);
       return this.triggerMethod("collection:rendered", this);
     };
 
-    CollectionView.prototype.close = function() {
+    OverlayCollection.prototype.close = function() {
       if (this.isClosed) {
         return;
       }
@@ -1122,7 +1118,7 @@
       return this.triggerMethod("collection:closed");
     };
 
-    CollectionView.prototype.closeChildren = function() {
+    OverlayCollection.prototype.closeChildren = function() {
       return this.children.each((function(_this) {
         return function(child, index) {
           return _this.removeChildView(child);
@@ -1130,7 +1126,7 @@
       })(this));
     };
 
-    return CollectionView;
+    return OverlayCollection;
 
   })(Backbone.View);
 

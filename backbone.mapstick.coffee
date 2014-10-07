@@ -510,8 +510,6 @@ class MapStick.Polyline extends MapStick.OverlayWithPath
     "clickable","draggable","editable","geodesic","icons","map","path",
     "strokeColor","strokeOpacity","strokeWeight","visible","zIndex"
   ]
-  defaultOptions:
-    path: new google.maps.MVCArray
 
 class MapStick.Polygon extends MapStick.OverlayWithPath
   overlayType: "polygon"
@@ -646,9 +644,9 @@ class MapStick.InfoWindow extends MapStick.Overlay
     content_view.render()
     @overlay.setContent content_view.$el[0]
 
-# MapStick.CollectionView manages the relationship between a collection of
-# models and a collection of views
-class MapStick.CollectionView extends Backbone.View
+# MapStick.OverlayCollection manages the relationship between a collection of
+# models and a collection of overlays
+class MapStick.OverlayCollection extends Backbone.View
   itemView: MapStick.Overlay
   itemType: "model"
   triggerMethod: Marionette.triggerMethod
