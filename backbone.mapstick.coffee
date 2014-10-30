@@ -199,7 +199,6 @@ MapStick.isClockwise = (path) ->
 ## MapStick.Overlay
 # generic view for binding to a google.maps.overlay
 class MapStick.Overlay extends Backbone.View
-  overlayType: "overlay_view"
   googleOverlayType: =>
     @overlayType.split("_").map((string) -> string.charAt(0).toUpperCase() + string.slice(1)).join("")
   googleDrawingOverlayType: =>
@@ -647,7 +646,6 @@ class MapStick.InfoWindow extends MapStick.Overlay
 # MapStick.OverlayCollection manages the relationship between a collection of
 # models and a collection of overlays
 class MapStick.OverlayCollection extends Backbone.View
-  itemView: MapStick.Overlay
   itemType: "model"
   triggerMethod: Marionette.triggerMethod
   viewOptions: ['collection', 'model', 'map']
@@ -667,8 +665,8 @@ class MapStick.OverlayCollection extends Backbone.View
   # Create a view for each model in the collection
   _initialCollection: =>
     @collection.each (item, index) =>
-      ItemView = @getItemView(item)
-      @addItemView(item, ItemView, index)
+      if ItemView = @getItemView(item)
+        @addItemView(item, ItemView, index)
 
   # Configured the initial events that the collection view
   # binds to.
@@ -695,8 +693,8 @@ class MapStick.OverlayCollection extends Backbone.View
       @stopListening @collection, "reset"
 
   addChildView: (item, collection, options) =>
-    ItemView = @getItemView(item)
-    @addItemView(item, ItemView)
+    if ItemView = @getItemView(item)
+      @addItemView(item, ItemView)
 
   # When the collection view is shown, show its children
   show: (map) =>
@@ -728,15 +726,14 @@ class MapStick.OverlayCollection extends Backbone.View
   # collection view and show it
   showCollection: =>
     @collection.each (item) =>
-      ItemView = @getItemView(item)
-      @addItemView(item, ItemView)
+      if ItemView = @getItemView(item)
+        @addItemView(item, ItemView)
 
   # get the type of view
   getItemView: (item) =>
     itemView = MapStick.getOption @, "itemView"
-
     unless itemView
-      throwError("An `itemView` must be specified", "NoItemViewError")
+      console.error("An 'itemView' must be specified for class: #{@constructor.name}")
     itemView
 
   addItemView: (item, ItemView, index) =>
