@@ -216,8 +216,6 @@
   MapStick.Overlay = (function(_super) {
     __extends(Overlay, _super);
 
-    Overlay.prototype.overlayType = "overlay_view";
-
     Overlay.prototype.googleOverlayType = function() {
       return this.overlayType.split("_").map(function(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -913,8 +911,6 @@
   MapStick.OverlayCollection = (function(_super) {
     __extends(OverlayCollection, _super);
 
-    OverlayCollection.prototype.itemView = MapStick.Overlay;
-
     OverlayCollection.prototype.itemType = "model";
 
     OverlayCollection.prototype.triggerMethod = Marionette.triggerMethod;
@@ -961,8 +957,9 @@
       return this.collection.each((function(_this) {
         return function(item, index) {
           var ItemView;
-          ItemView = _this.getItemView(item);
-          return _this.addItemView(item, ItemView, index);
+          if (ItemView = _this.getItemView(item)) {
+            return _this.addItemView(item, ItemView, index);
+          }
         };
       })(this));
     };
@@ -998,8 +995,9 @@
 
     OverlayCollection.prototype.addChildView = function(item, collection, options) {
       var ItemView;
-      ItemView = this.getItemView(item);
-      return this.addItemView(item, ItemView);
+      if (ItemView = this.getItemView(item)) {
+        return this.addItemView(item, ItemView);
+      }
     };
 
     OverlayCollection.prototype.show = function(map) {
@@ -1032,8 +1030,9 @@
       return this.collection.each((function(_this) {
         return function(item) {
           var ItemView;
-          ItemView = _this.getItemView(item);
-          return _this.addItemView(item, ItemView);
+          if (ItemView = _this.getItemView(item)) {
+            return _this.addItemView(item, ItemView);
+          }
         };
       })(this));
     };
@@ -1042,7 +1041,7 @@
       var itemView;
       itemView = MapStick.getOption(this, "itemView");
       if (!itemView) {
-        throwError("An `itemView` must be specified", "NoItemViewError");
+        console.error("An 'itemView' must be specified for class: " + this.constructor.name);
       }
       return itemView;
     };
