@@ -257,6 +257,8 @@
       this.updateFromDrawn = __bind(this.updateFromDrawn, this);
       this.getDrawnOptions = __bind(this.getDrawnOptions, this);
       this.finishDrawing = __bind(this.finishDrawing, this);
+      this.cancelDrawing = __bind(this.cancelDrawing, this);
+      this.endDrawing = __bind(this.endDrawing, this);
       this.draw = __bind(this.draw, this);
       this.render = __bind(this.render, this);
       this.clearListeners = __bind(this.clearListeners, this);
@@ -290,7 +292,9 @@
         this.initialize(this.options);
       }
       this.model.on("destroy", this.remove);
-      this.model.on("draw", this.draw);
+      if (this.overlayType !== "info_window") {
+        this.model.on("draw", this.draw);
+      }
     }
 
     Overlay.prototype.attachOverlayEvents = function() {
@@ -579,7 +583,9 @@
         google.maps.event.clearInstanceListeners(MapStick.drawingManager);
         return google.maps.event.addListener(MapStick.drawingManager, "overlaycomplete", (function(_this) {
           return function(e) {
-            return _this.finishDrawing(e.overlay);
+            if (MapStick.drawingManager.getDrawingMode()) {
+              return _this.finishDrawing(e.overlay);
+            }
           };
         })(this));
       } else {
@@ -587,10 +593,18 @@
       }
     };
 
+    Overlay.prototype.endDrawing = function(overlay) {
+      MapStick.drawingManager.setDrawingMode(null);
+      return overlay.setMap(null);
+    };
+
+    Overlay.prototype.cancelDrawing = function(overlay) {
+      return this.endDrawing(overlay);
+    };
+
     Overlay.prototype.finishDrawing = function(overlay) {
-      this.updateFromDrawn(overlay);
-      overlay.setMap(null);
-      return MapStick.drawingManager.setDrawingMode(null);
+      this.endDrawing(overlay);
+      return this.updateFromDrawn(overlay);
     };
 
     Overlay.prototype.getDrawnOptions = function(overlay) {
@@ -853,6 +867,7 @@
 
     function InfoWindow() {
       this.setContentView = __bind(this.setContentView, this);
+      this.remove = __bind(this.remove, this);
       this.close = __bind(this.close, this);
       this.open = __bind(this.open, this);
       this.isOpen = __bind(this.isOpen, this);
@@ -894,6 +909,11 @@
 
     InfoWindow.prototype.close = function() {
       return this.overlay.close();
+    };
+
+    InfoWindow.prototype.remove = function() {
+      this.close();
+      return InfoWindow.__super__.remove.apply(this, arguments);
     };
 
     InfoWindow.prototype.setContentView = function(content_view) {

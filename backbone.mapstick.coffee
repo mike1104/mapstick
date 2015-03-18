@@ -240,7 +240,8 @@ class MapStick.Overlay extends Backbone.View
     @setBindings()
     @initialize(@options) if _.isFunction(@initialize)
     @model.on "destroy", @remove
-    @model.on "draw", @draw
+    unless @overlayType is "info_window"
+      @model.on "draw", @draw
 
   # listen for all events on google.maps.overlay and trigger event on the
   # Overlay
@@ -430,21 +431,28 @@ class MapStick.Overlay extends Backbone.View
       MapStick.drawingManager ?= new google.maps.drawing.DrawingManager
         map: map
         drawingControl: false
-
       MapStick.drawingManager.setDrawingMode @overlayType
-
       google.maps.event.clearInstanceListeners MapStick.drawingManager
       google.maps.event.addListener MapStick.drawingManager, "overlaycomplete", (e) =>
-        @finishDrawing e.overlay
+        if MapStick.drawingManager.getDrawingMode()
+          @finishDrawing e.overlay
     else
       console.error "please include google.maps.drawing library"
+
+  # hide the temporary overlay and drawingManager
+  endDrawing: (overlay) =>
+    MapStick.drawingManager.setDrawingMode null
+    overlay.setMap null
+
+  # discard drawn overlay
+  cancelDrawing: (overlay) =>
+    @endDrawing(overlay)
 
   # use the temporary overlay to update the main overlay
   # hide the temporary overlay and drawingManager
   finishDrawing: (overlay) =>
+    @endDrawing overlay
     @updateFromDrawn overlay
-    overlay.setMap null
-    MapStick.drawingManager.setDrawingMode null
 
   getDrawnOptions: (overlay) =>
     {}
@@ -637,6 +645,10 @@ class MapStick.InfoWindow extends MapStick.Overlay
 
   close: =>
     @overlay.close()
+
+  remove: =>
+    @close()
+    super
 
   setContentView: (content_view) =>
     content_view ?= @content_view
