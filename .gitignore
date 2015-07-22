@@ -1,2 +1,3 @@
-compile.sh
 .DS_Store
+bower_components/
+node_modules/

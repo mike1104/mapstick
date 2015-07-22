@@ -1,0 +1,17 @@
+{
+  "name": "mapstick",
+  "version": "0.1.0",
+  "main": "mapstick.js",
+  "dependencies": {
+    "backbone": "~1.2.1"
+  },
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "demo",
+    "node_modules",
+    "package.json",
+    "src",
+    "test"
+  ]
+}

@@ -1,8 +1,8 @@
 # MapStick (backbone.mapstick)
 # ----------------------------------
-# v0.0.1
+# v0.1.0
 #
-# Copyright (c)2014 Spanner Ltd.
+# Copyright (c)2014-5 Spanner Ltd.
 # Distributed under MIT license
 #
 # http://spanner.org
@@ -240,7 +240,11 @@ class MapStick.Overlay extends Backbone.View
     @setBindings()
     @initialize(@options) if _.isFunction(@initialize)
     @model.on "destroy", @remove
-    @model.on "draw", @draw
+    if @overlayType is "info_window"
+      if content_view = @options.content_view
+        @setContentView content_view
+    else
+      @model.on "draw", @draw
 
   # listen for all events on google.maps.overlay and trigger event on the
   # Overlay
@@ -278,7 +282,7 @@ class MapStick.Overlay extends Backbone.View
           # set the initial bound attributes from the model on the overlay
           @setBoundOverlayAttributes opts
           @listenToBoundModelChanges opts
-          @listenToBoundOverlayEvents opts
+          @listenToBoundOverlayEvents(opts) if overlay_attribute in @twoWayProperties
 
   bindPosition: (opts={}) =>
     lat_attr = opts.lat
@@ -310,8 +314,7 @@ class MapStick.Overlay extends Backbone.View
     overlay_attribute = opts.overlay_attribute
     if events = opts.overlayEvents
       events = [events] if _.isString events
-    else
-      events or= @defaultOverlayEvents
+    events ?= @defaultOverlayEvents
     _.each events, (event_name) =>
       # listen to the overlay for each of the 'overlayEvents'
       google.maps.event.addListener @overlay, event_name, (e) =>
@@ -427,33 +430,61 @@ class MapStick.Overlay extends Backbone.View
   draw: (map) =>
     map ?= @map
     if google.maps.drawing
+      @_cancelled = false
       MapStick.drawingManager ?= new google.maps.drawing.DrawingManager
         map: map
         drawingControl: false
-
+      MapStick.drawingManager.setMap map
       MapStick.drawingManager.setDrawingMode @overlayType
-
       google.maps.event.clearInstanceListeners MapStick.drawingManager
+
       google.maps.event.addListener MapStick.drawingManager, "overlaycomplete", (e) =>
-        @finishDrawing e.overlay
+        # if the overlay has been completed with the mouse then stopDrawing hasn't been called yet.
+        @stopDrawing() if MapStick.drawingManager.getDrawingMode()
+        if @_cancelled
+          @abandonOverlay e.overlay
+        else
+          @saveOverlay e.overlay
+      # @_key_listener = google.maps.event.addDomListener document, 'keyup', @handleKey
     else
       console.error "please include google.maps.drawing library"
 
-  # use the temporary overlay to update the main overlay
+  handleKey: (e) =>
+    @cancelDraw() if e.keyCode is 27
+    @completeDraw() if e.keyCode is 13
+
+  # On keyboard-finish we call stopDrawing() directly because 
+  # setting drawingMode to null will trigger an overlaycomplete event
+  # which sets off the rest of our exit from the drawing manager.
+  cancelDraw: (e) =>
+    @_cancelled = true
+    @stopDrawing()
+
+  completeDraw: (e) =>
+    @_cancelled = false
+    @stopDrawing()
+
   # hide the temporary overlay and drawingManager
-  finishDrawing: (overlay) =>
-    @updateFromDrawn overlay
-    overlay.setMap null
+  stopDrawing: () =>
+    google.maps.event.removeListener(@_key_listener) if @_key_listener
     MapStick.drawingManager.setDrawingMode null
+    MapStick.drawingManager.setMap null
 
-  getDrawnOptions: (overlay) =>
-    {}
-
-  # get properties from the temporary overlay and apply to main overlay
-  updateFromDrawn: (overlay) =>
+  # use the temporary drawn overlay to update the main model overlay
+  saveOverlay: (overlay) =>
     @overlay.setOptions @getDrawnOptions(overlay)
     @model.trigger "overlay:drawn"
     google.maps.event.trigger @overlay, "drawn"
+    overlay.setMap(null)
+    @show()
+
+  abandonOverlay: (overlay) =>
+    @model.trigger "overlay:cancelled"
+    google.maps.event.trigger @overlay, "cancelled"
+    overlay.setMap(null)
+
+  getDrawnOptions: (overlay) =>
+    {}
 
 class MapStick.Marker extends MapStick.Overlay
   overlayType: "marker"
@@ -467,6 +498,7 @@ class MapStick.Marker extends MapStick.Overlay
   defaultOverlayEvents: [
     "drag","dragend","dragstart","drawn"
   ]
+  twoWayProperties: ["position"]
   properties: [
     "anchorPoint","animation","clickable","crossOnDrag","cursor",
     "draggable","icon","map","opacity","optimized","position","shape",
@@ -505,10 +537,15 @@ class MapStick.Polyline extends MapStick.OverlayWithPath
   defaultOverlayEvents: [
     "drag","dragend","drawn"
   ]
+  twoWayProperties: ["path"]
   properties: [
     "clickable","draggable","editable","geodesic","icons","map","path",
     "strokeColor","strokeOpacity","strokeWeight","visible","zIndex"
   ]
+  getBounds: =>
+    bounds = new google.maps.LatLngBounds()
+    @overlay.getPath().forEach (point) -> bounds.extend point  
+    bounds
 
 class MapStick.Polygon extends MapStick.OverlayWithPath
   overlayType: "polygon"
@@ -519,6 +556,7 @@ class MapStick.Polygon extends MapStick.OverlayWithPath
   defaultOverlayEvents: [
     "drag","dragend","drawn"
   ]
+  twoWayProperties: ["paths"]
   properties: [
     "zIndex","visible","strokeWeight","strokePosition","strokeOpacity",
     "strokeColor","paths","map","geodesic","fillOpacity","fillColor",
@@ -570,6 +608,12 @@ class MapStick.Polygon extends MapStick.OverlayWithPath
         google.maps.event.addListener path, event_name, (e) =>
           @setBoundModelAttributes opts
 
+  getBounds: =>
+    bounds = new google.maps.LatLngBounds()
+    @overlay.getPaths().forEach (path) ->
+      path.forEach (point) -> bounds.extend point  
+    bounds
+
 class MapStick.Rectangle extends MapStick.Overlay
   overlayType: "rectangle"
   overlayEventNames: [
@@ -579,6 +623,7 @@ class MapStick.Rectangle extends MapStick.Overlay
   defaultOverlayEvents: [
     "drag","dragend","dragstart","drawn"
   ]
+  twoWayProperties: ["bounds"]
   properties: [
     "bounds","clickable","draggable","editable","fillColor","fillOpacity","map",
     "strokeColor","strokeOpacity","strokePosition","strokeWeight","visible",
@@ -598,6 +643,7 @@ class MapStick.Circle extends MapStick.Overlay
   defaultOverlayEvents: [
     "drag","dragend","dragstart","drawn"
   ]
+  twoWayProperties: ["center","radius"]
   properties: [
     "center","clickable","draggable","editable","fillColor","fillOpacity","map",
     "radius","strokeColor","strokeOpacity","strokePosition","strokeWeight",
@@ -615,13 +661,10 @@ class MapStick.InfoWindow extends MapStick.Overlay
   overlayEventNames: [
     "closeclick","content_changed","domready","position_changed","zindex_changed"
   ]
+  twoWayProperties: ["content"]
   properties: [
     "content","disableAutoPan","maxWidth","pixelOffset","position","zIndex"
   ]
-
-  initialize: ({content_view:@content_view}={}) ->
-    super
-    @setContentView() if @content_view
 
   isOpen: =>
     map = @get "map"
@@ -637,6 +680,10 @@ class MapStick.InfoWindow extends MapStick.Overlay
 
   close: =>
     @overlay.close()
+
+  remove: =>
+    @close()
+    super
 
   setContentView: (content_view) =>
     content_view ?= @content_view
