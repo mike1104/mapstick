@@ -257,33 +257,31 @@
       if (options == null) {
         options = {};
       }
-      this.getDrawnOptions = bind(this.getDrawnOptions, this);
-      this.abandonOverlay = bind(this.abandonOverlay, this);
-      this.saveOverlay = bind(this.saveOverlay, this);
-      this.stopDrawing = bind(this.stopDrawing, this);
-      this.completeDraw = bind(this.completeDraw, this);
-      this.cancelDraw = bind(this.cancelDraw, this);
-      this.handleKey = bind(this.handleKey, this);
-      this.draw = bind(this.draw, this);
-      this.render = bind(this.render, this);
-      this.clearListeners = bind(this.clearListeners, this);
-      this.remove = bind(this.remove, this);
-      this.hide = bind(this.hide, this);
-      this.show = bind(this.show, this);
-      this.set = bind(this.set, this);
-      this.get = bind(this.get, this);
-      this.triggerOverlayEvent = bind(this.triggerOverlayEvent, this);
-      this.setBoundOverlayAttributes = bind(this.setBoundOverlayAttributes, this);
-      this.setBoundModelAttributes = bind(this.setBoundModelAttributes, this);
-      this.listenToBoundOverlayEvents = bind(this.listenToBoundOverlayEvents, this);
-      this.listenToBoundModelChanges = bind(this.listenToBoundModelChanges, this);
-      this.bindPosition = bind(this.bindPosition, this);
-      this.setBindings = bind(this.setBindings, this);
-      this.listenToModel = bind(this.listenToModel, this);
-      this.attachOverlayEvents = bind(this.attachOverlayEvents, this);
-      this.buildOverlay = bind(this.buildOverlay, this);
-      this.googleDrawingOverlayType = bind(this.googleDrawingOverlayType, this);
-      this.googleOverlayType = bind(this.googleOverlayType, this);
+      this.updateFromDrawn = __bind(this.updateFromDrawn, this);
+      this.getDrawnOptions = __bind(this.getDrawnOptions, this);
+      this.finishDrawing = __bind(this.finishDrawing, this);
+      this.cancelDrawing = __bind(this.cancelDrawing, this);
+      this.endDrawing = __bind(this.endDrawing, this);
+      this.draw = __bind(this.draw, this);
+      this.render = __bind(this.render, this);
+      this.clearListeners = __bind(this.clearListeners, this);
+      this.remove = __bind(this.remove, this);
+      this.hide = __bind(this.hide, this);
+      this.show = __bind(this.show, this);
+      this.set = __bind(this.set, this);
+      this.get = __bind(this.get, this);
+      this.triggerOverlayEvent = __bind(this.triggerOverlayEvent, this);
+      this.setBoundOverlayAttributes = __bind(this.setBoundOverlayAttributes, this);
+      this.setBoundModelAttributes = __bind(this.setBoundModelAttributes, this);
+      this.listenToBoundOverlayEvents = __bind(this.listenToBoundOverlayEvents, this);
+      this.listenToBoundModelChanges = __bind(this.listenToBoundModelChanges, this);
+      this.bindPosition = __bind(this.bindPosition, this);
+      this.setBindings = __bind(this.setBindings, this);
+      this.listenToModel = __bind(this.listenToModel, this);
+      this.attachOverlayEvents = __bind(this.attachOverlayEvents, this);
+      this.buildOverlay = __bind(this.buildOverlay, this);
+      this.googleDrawingOverlayType = __bind(this.googleDrawingOverlayType, this);
+      this.googleOverlayType = __bind(this.googleOverlayType, this);
       this.cid = _.uniqueId('overlay');
       this.options = _.extend({}, _.result(this, 'options'), _.isFunction(options) ? options.call(this) : options);
       this.overlayOptions = _.pick(options, this.properties);
@@ -297,11 +295,7 @@
         this.initialize(this.options);
       }
       this.model.on("destroy", this.remove);
-      if (this.overlayType === "info_window") {
-        if (content_view = this.options.content_view) {
-          this.setContentView(content_view);
-        }
-      } else {
+      if (this.overlayType !== "info_window") {
         this.model.on("draw", this.draw);
       }
     }
@@ -598,12 +592,7 @@
         return google.maps.event.addListener(MapStick.drawingManager, "overlaycomplete", (function(_this) {
           return function(e) {
             if (MapStick.drawingManager.getDrawingMode()) {
-              _this.stopDrawing();
-            }
-            if (_this._cancelled) {
-              return _this.abandonOverlay(e.overlay);
-            } else {
-              return _this.saveOverlay(e.overlay);
+              return _this.finishDrawing(e.overlay);
             }
           };
         })(this));
@@ -938,11 +927,11 @@
     extend(InfoWindow, superClass);
 
     function InfoWindow() {
-      this.setContentView = bind(this.setContentView, this);
-      this.remove = bind(this.remove, this);
-      this.close = bind(this.close, this);
-      this.open = bind(this.open, this);
-      this.isOpen = bind(this.isOpen, this);
+      this.setContentView = __bind(this.setContentView, this);
+      this.remove = __bind(this.remove, this);
+      this.close = __bind(this.close, this);
+      this.open = __bind(this.open, this);
+      this.isOpen = __bind(this.isOpen, this);
       return InfoWindow.__super__.constructor.apply(this, arguments);
     }
 
