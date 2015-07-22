@@ -857,8 +857,6 @@ class MapStick.OverlayCollection extends Backbone.View
     @removeListeners()
     @triggerMethod("collection:closed")
 
-    # Marionette.View.prototype.close.apply(@, arguments)
-
   # Close the child views that this collection view
   # is holding on to, if any
   closeChildren: () =>
