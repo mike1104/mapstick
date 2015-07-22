@@ -1,9 +1,7 @@
 {
-  "name": "mapstick",
+  "name": "backbone-mapstick",
   "version": "0.1.0",
-  "description": "",
-  "url": "https://github.com/mike1104/mapstick.git",
-  "title": "MapStick (backbone.mapstick)",  
+  "title": "MapStick",
   "company": "Spanner Ltd",
   "author": {
     "name": "Mike McIver",
@@ -16,27 +14,17 @@
       "email": "will@spanner.org"
     }
   ],
-  "engines": {
-    "node": ">= 0.10.0"
-  },
-  "keywords": [
-    "backbone",
-    "google-maps-api"
-  ],
-  "dependencies": {
-    "backbone": "^1.2.1"
-  },
   "devDependencies": {
     "grunt": "~0.4.5",
     "grunt-bower-task": "^0.4.0",
+    "grunt-contrib-coffee": "^0.13.0",
     "grunt-contrib-concat": "~0.4.0",
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-contrib-qunit": "~0.5.2",
     "grunt-contrib-uglify": "~0.5.0",
-    "grunt-contrib-watch": "~0.6.1",
-    "grunt-contrib-coffee": "^0.13.0"
+    "grunt-contrib-watch": "~0.6.1"
   },
-  "main": "mapstick.js",
+  "main": "backbone-mapstick.js",
   "license": "MIT",
   "repository": {
     "type": "git",

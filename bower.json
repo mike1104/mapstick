@@ -1,7 +1,16 @@
 {
-  "name": "mapstick",
+  "name": "backbone-mapstick",
   "version": "0.1.0",
-  "main": "mapstick.js",
+  "main": "backbone-mapstick.js",
+  "authors": [
+    "Mike McIver <mike@spanner.org>",
+    "William Ross <will@spanner.org>"
+  ],
+  "keywords": [
+    "backbone",
+    "google-maps-api",
+    "map"
+  ],
   "dependencies": {
     "backbone": "~1.2.1"
   },

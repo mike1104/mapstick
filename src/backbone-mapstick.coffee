@@ -1,12 +1,3 @@
-# MapStick (backbone.mapstick)
-# ----------------------------------
-# v0.1.0
-#
-# Copyright (c)2014-5 Spanner Ltd.
-# Distributed under MIT license
-#
-# http://spanner.org
-
 window.MapStick = () ->
   # Borrow the Backbone `extend` method so we can use it as needed
   extend: Backbone.Model.extend
