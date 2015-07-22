@@ -133,11 +133,11 @@
   };
 
   MapStick.triggerMethod = function() {
-    var splitter, triggerMethod;
+    var getEventName, splitter, triggerMethod;
     splitter = /(^|:)(\w)/gi;
-    getEventName(match, prefix, eventName)(function() {
+    getEventName = function(match, prefix, eventName) {
       return eventName.toUpperCase();
-    });
+    };
     triggerMethod = (function(_this) {
       return function(event) {
         var method, methodName;
@@ -244,7 +244,7 @@
 
     Overlay.prototype.modelEvents = {};
 
-    Overlay.prototype.triggerMethod = Marionette.triggerMethod;
+    Overlay.prototype.triggerMethod = MapStick.triggerMethod;
 
     Overlay.prototype.showing = false;
 
@@ -999,7 +999,7 @@
 
     OverlayCollection.prototype.itemType = "model";
 
-    OverlayCollection.prototype.triggerMethod = Marionette.triggerMethod;
+    OverlayCollection.prototype.triggerMethod = MapStick.triggerMethod;
 
     OverlayCollection.prototype.viewOptions = ['collection', 'model', 'map'];
 

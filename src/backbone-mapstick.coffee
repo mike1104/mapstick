@@ -116,7 +116,7 @@ MapStick.triggerMethod = ->
 
   # take the event section ("section1:section2:section3")
   # and turn it in to uppercase name
-  getEventName(match, prefix, eventName) ->
+  getEventName = (match, prefix, eventName) ->
     eventName.toUpperCase()
 
   # actual triggerMethod implementation
@@ -209,7 +209,7 @@ class MapStick.Overlay extends Backbone.View
   #     lng: "lng_attribute"
   defaultOverlayEvents: []
   modelEvents: {}
-  triggerMethod: Marionette.triggerMethod
+  triggerMethod: MapStick.triggerMethod
   showing: false
 
   # build a google.maps overlay with the initial options
@@ -685,7 +685,7 @@ class MapStick.InfoWindow extends MapStick.Overlay
 # models and a collection of overlays
 class MapStick.OverlayCollection extends Backbone.View
   itemType: "model"
-  triggerMethod: Marionette.triggerMethod
+  triggerMethod: MapStick.triggerMethod
   viewOptions: ['collection', 'model', 'map']
   showing: false
   collectionEvents: {}
@@ -856,6 +856,8 @@ class MapStick.OverlayCollection extends Backbone.View
     @closeChildren()
     @removeListeners()
     @triggerMethod("collection:closed")
+
+    # Marionette.View.prototype.close.apply(@, arguments)
 
   # Close the child views that this collection view
   # is holding on to, if any
