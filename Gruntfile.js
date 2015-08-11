@@ -45,9 +45,8 @@ module.exports = function(grunt) {
     },
     jshint: {
       options: {
-        curly: true,
+        // curly: true,
         eqeqeq: true,
-        immed: true,
         latedef: true,
         newcap: true,
         noarg: true,
@@ -57,13 +56,18 @@ module.exports = function(grunt) {
         boss: true,
         eqnull: true,
         browser: true,
-        globals: {}
+        devel: true,
+        globals: {
+          Backbone: true,
+          _: true,
+          google: true
+        }
       },
       gruntfile: {
         src: 'Gruntfile.js'
       },
-      lib_test: {
-        src: ['lib/**/*.js', 'test/**/*.js']
+      files: {
+        src: ['backbone-mapstick.js']
       }
     },
     qunit: {

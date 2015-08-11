@@ -1,4 +1,4 @@
-window.MapStick = () ->
+MapStick = window.MapStick = () ->
   # Borrow the Backbone `extend` method so we can use it as needed
   extend: Backbone.Model.extend
 
@@ -94,7 +94,7 @@ class MapStick.ChildViewContainer
   # passing parameters to the call method one at a
   # time, like `function.apply`.
   apply: (method, args) =>
-    _.each @_views, (view) =>
+    _.each @_views, (view) ->
       if _.isFunction(view[method])
         view[method].apply(view, args || [])
 
@@ -282,11 +282,11 @@ class MapStick.Overlay extends Backbone.View
       if @model.has(lat_attr) and @model.has(lng_attr)
         @set {position: new google.maps.LatLng(@model.get(lat_attr), @model.get(lng_attr))}
     setLatLng()
-    @model.on "change:#{lat_attr} change:#{lng_attr}", (model, value, {mapstickChange:m_change}={}) =>
+    @model.on "change:#{lat_attr} change:#{lng_attr}", (model, value, {mapstickChange:m_change}={}) ->
       setLatLng() unless m_change
     overlay_events = opts.overlayEvents or @defaultOverlayEvents
     _.each overlay_events, (event_name) =>
-      google.maps.event.addListener @overlay, event_name, (e) =>
+      google.maps.event.addListener @overlay, event_name, () =>
         if pos = @get("position")
           latlng = {}
           latlng[lat_attr] = pos.lat()
@@ -447,11 +447,11 @@ class MapStick.Overlay extends Backbone.View
   # On keyboard-finish we call stopDrawing() directly because 
   # setting drawingMode to null will trigger an overlaycomplete event
   # which sets off the rest of our exit from the drawing manager.
-  cancelDraw: (e) =>
+  cancelDraw: =>
     @_cancelled = true
     @stopDrawing()
 
-  completeDraw: (e) =>
+  completeDraw: =>
     @_cancelled = false
     @stopDrawing()
 
@@ -474,8 +474,7 @@ class MapStick.Overlay extends Backbone.View
     google.maps.event.trigger @overlay, "cancelled"
     overlay.setMap(null)
 
-  getDrawnOptions: (overlay) =>
-    {}
+  getDrawnOptions: => {}
 
 class MapStick.Marker extends MapStick.Overlay
   overlayType: "marker"
@@ -501,7 +500,7 @@ class MapStick.Marker extends MapStick.Overlay
 
 class MapStick.OverlayWithPath extends MapStick.Overlay
   defaultOptions:
-    path: new google.maps.MVCArray
+    path: new google.maps.MVCArray()
 
   getEncodedPathFromOverlay: =>
     MapStick.encodePathString @overlay.getPath()
@@ -556,9 +555,10 @@ class MapStick.Polygon extends MapStick.OverlayWithPath
 
   drawExclusion: =>
     if google.maps.drawing
-      MapStick.drawingManager ?= new google.maps.drawing.DrawingManager
-        map: @map
-        drawingControl: false
+      unless MapStick.drawingManager and MapStick.drawingManager.getMap()
+        MapStick.drawingManager = new google.maps.drawing.DrawingManager
+          map: @map
+          drawingControl: false
 
       MapStick.drawingManager.setDrawingMode "polygon"
 
@@ -581,13 +581,13 @@ class MapStick.Polygon extends MapStick.OverlayWithPath
     google.maps.event.trigger @overlay, "drawn"
 
   getEncodedPathsFromOverlay: =>
-    _.collect @overlay.getPaths().getArray(), (path) =>
+    _.collect @overlay.getPaths().getArray(), (path) ->
       MapStick.encodePathString path
 
   setOverlayPathsFromEncodedStrings: (paths) =>
     if _.isString paths
       paths = paths.split(",")
-    paths = _.collect paths, (string) =>
+    paths = _.collect paths, (string) ->
       MapStick.decodePathString(string)
     @overlay.setPaths paths
 
@@ -596,7 +596,7 @@ class MapStick.Polygon extends MapStick.OverlayWithPath
     paths = @overlay.getPaths()
     _.each ["insert_at","remove_at","set_at"], (event_name) =>
       paths.forEach (path) =>
-        google.maps.event.addListener path, event_name, (e) =>
+        google.maps.event.addListener path, event_name, () =>
           @setBoundModelAttributes opts
 
   getBounds: =>
@@ -730,7 +730,7 @@ class MapStick.OverlayCollection extends Backbone.View
       @stopListening @collection, "remove"
       @stopListening @collection, "reset"
 
-  addChildView: (item, collection, options) =>
+  addChildView: (item) =>
     if ItemView = @getItemView(item)
       @addItemView(item, ItemView)
 
@@ -768,7 +768,7 @@ class MapStick.OverlayCollection extends Backbone.View
         @addItemView(item, ItemView)
 
   # get the type of view
-  getItemView: (item) =>
+  getItemView: =>
     itemView = MapStick.getOption @, "itemView"
     unless itemView
       console.error("An 'itemView' must be specified for class: #{@constructor.name}")
@@ -832,7 +832,7 @@ class MapStick.OverlayCollection extends Backbone.View
     @triggerMethod("item:removed", view)
 
   _initChildViewStorage: =>
-    @children = new MapStick.ChildViewContainer
+    @children = new MapStick.ChildViewContainer()
 
   # Internal method to trigger the before render callbacks
   # and events
@@ -862,5 +862,4 @@ class MapStick.OverlayCollection extends Backbone.View
   # Close the child views that this collection view
   # is holding on to, if any
   closeChildren: () =>
-    @children.each (child, index) =>
-      @removeChildView(child)
+    @children.each @removeChildView

@@ -8,8 +8,10 @@
   ],
   "keywords": [
     "backbone",
-    "google-maps-api",
-    "map"
+    "google",
+    "map",
+    "maps",
+    "api"
   ],
   "dependencies": {
     "backbone": "~1.2.1"

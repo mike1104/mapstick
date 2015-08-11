@@ -1,13 +1,14 @@
-/*! MapStick (backbone-mapstick) - v0.1.0 - 2015-07-22
+/*! MapStick (backbone-mapstick) - v0.1.1 - 2015-08-11
 * Copyright (c) 2015 Mike McIver; Distributed under MIT license */
 
 (function() {
-  var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var MapStick,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  window.MapStick = function() {
+  MapStick = window.MapStick = function() {
     return {
       extend: Backbone.Model.extend
     };
@@ -105,13 +106,11 @@
     };
 
     ChildViewContainer.prototype.apply = function(method, args) {
-      return _.each(this._views, (function(_this) {
-        return function(view) {
-          if (_.isFunction(view[method])) {
-            return view[method].apply(view, args || []);
-          }
-        };
-      })(this));
+      return _.each(this._views, function(view) {
+        if (_.isFunction(view[method])) {
+          return view[method].apply(view, args || []);
+        }
+      });
     };
 
     ChildViewContainer.prototype._updateLength = function() {
@@ -378,19 +377,17 @@
         };
       })(this);
       setLatLng();
-      this.model.on("change:" + lat_attr + " change:" + lng_attr, (function(_this) {
-        return function(model, value, arg) {
-          var m_change;
-          m_change = (arg != null ? arg : {}).mapstickChange;
-          if (!m_change) {
-            return setLatLng();
-          }
-        };
-      })(this));
+      this.model.on("change:" + lat_attr + " change:" + lng_attr, function(model, value, arg) {
+        var m_change;
+        m_change = (arg != null ? arg : {}).mapstickChange;
+        if (!m_change) {
+          return setLatLng();
+        }
+      });
       overlay_events = opts.overlayEvents || this.defaultOverlayEvents;
       return _.each(overlay_events, (function(_this) {
         return function(event_name) {
-          return google.maps.event.addListener(_this.overlay, event_name, function(e) {
+          return google.maps.event.addListener(_this.overlay, event_name, function() {
             var latlng, pos;
             if (pos = _this.get("position")) {
               latlng = {};
@@ -621,12 +618,12 @@
       }
     };
 
-    Overlay.prototype.cancelDraw = function(e) {
+    Overlay.prototype.cancelDraw = function() {
       this._cancelled = true;
       return this.stopDrawing();
     };
 
-    Overlay.prototype.completeDraw = function(e) {
+    Overlay.prototype.completeDraw = function() {
       this._cancelled = false;
       return this.stopDrawing();
     };
@@ -653,7 +650,7 @@
       return overlay.setMap(null);
     };
 
-    Overlay.prototype.getDrawnOptions = function(overlay) {
+    Overlay.prototype.getDrawnOptions = function() {
       return {};
     };
 
@@ -701,7 +698,7 @@
     }
 
     OverlayWithPath.prototype.defaultOptions = {
-      path: new google.maps.MVCArray
+      path: new google.maps.MVCArray()
     };
 
     OverlayWithPath.prototype.getEncodedPathFromOverlay = function() {
@@ -793,7 +790,7 @@
 
     Polygon.prototype.drawExclusion = function() {
       if (google.maps.drawing) {
-        if (MapStick.drawingManager == null) {
+        if (!(MapStick.drawingManager && MapStick.drawingManager.getMap())) {
           MapStick.drawingManager = new google.maps.drawing.DrawingManager({
             map: this.map,
             drawingControl: false
@@ -826,22 +823,18 @@
     };
 
     Polygon.prototype.getEncodedPathsFromOverlay = function() {
-      return _.collect(this.overlay.getPaths().getArray(), (function(_this) {
-        return function(path) {
-          return MapStick.encodePathString(path);
-        };
-      })(this));
+      return _.collect(this.overlay.getPaths().getArray(), function(path) {
+        return MapStick.encodePathString(path);
+      });
     };
 
     Polygon.prototype.setOverlayPathsFromEncodedStrings = function(paths) {
       if (_.isString(paths)) {
         paths = paths.split(",");
       }
-      paths = _.collect(paths, (function(_this) {
-        return function(string) {
-          return MapStick.decodePathString(string);
-        };
-      })(this));
+      paths = _.collect(paths, function(string) {
+        return MapStick.decodePathString(string);
+      });
       return this.overlay.setPaths(paths);
     };
 
@@ -854,7 +847,7 @@
       return _.each(["insert_at", "remove_at", "set_at"], (function(_this) {
         return function(event_name) {
           return paths.forEach(function(path) {
-            return google.maps.event.addListener(path, event_name, function(e) {
+            return google.maps.event.addListener(path, event_name, function() {
               return _this.setBoundModelAttributes(opts);
             });
           });
@@ -1079,7 +1072,7 @@
       }
     };
 
-    OverlayCollection.prototype.addChildView = function(item, collection, options) {
+    OverlayCollection.prototype.addChildView = function(item) {
       var ItemView;
       if (ItemView = this.getItemView(item)) {
         return this.addItemView(item, ItemView);
@@ -1123,7 +1116,7 @@
       })(this));
     };
 
-    OverlayCollection.prototype.getItemView = function(item) {
+    OverlayCollection.prototype.getItemView = function() {
       var itemView;
       itemView = MapStick.getOption(this, "itemView");
       if (!itemView) {
@@ -1180,7 +1173,7 @@
     };
 
     OverlayCollection.prototype._initChildViewStorage = function() {
-      return this.children = new MapStick.ChildViewContainer;
+      return this.children = new MapStick.ChildViewContainer();
     };
 
     OverlayCollection.prototype.triggerBeforeRender = function() {
@@ -1204,11 +1197,7 @@
     };
 
     OverlayCollection.prototype.closeChildren = function() {
-      return this.children.each((function(_this) {
-        return function(child, index) {
-          return _this.removeChildView(child);
-        };
-      })(this));
+      return this.children.each(this.removeChildView);
     };
 
     return OverlayCollection;
