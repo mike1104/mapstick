@@ -1,4 +1,4 @@
-/*! MapStick (backbone-mapstick) - v0.1.1 - 2015-08-11
+/*! MapStick (backbone-mapstick) - v0.1.2 - 2015-08-11
 * Copyright (c) 2015 Mike McIver; Distributed under MIT license */
 
 (function() {
