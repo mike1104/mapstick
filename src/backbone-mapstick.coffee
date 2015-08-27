@@ -436,7 +436,7 @@ class MapStick.Overlay extends Backbone.View
           @abandonOverlay e.overlay
         else
           @saveOverlay e.overlay
-      # @_key_listener = google.maps.event.addDomListener document, 'keyup', @handleKey
+      @_key_listener = google.maps.event.addDomListener document, 'keyup', @handleKey
     else
       console.error "please include google.maps.drawing library"
 
@@ -449,11 +449,13 @@ class MapStick.Overlay extends Backbone.View
   # which sets off the rest of our exit from the drawing manager.
   cancelDraw: =>
     @_cancelled = true
-    @stopDrawing()
+    MapStick.drawingManager.trigger "overlaycomplete"
+    # @stopDrawing()
 
   completeDraw: =>
     @_cancelled = false
-    @stopDrawing()
+    MapStick.drawingManager.trigger "overlaycomplete"
+    # @stopDrawing()
 
   # hide the temporary overlay and drawingManager
   stopDrawing: () =>

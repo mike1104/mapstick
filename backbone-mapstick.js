@@ -1,4 +1,4 @@
-/*! MapStick (backbone-mapstick) - v0.1.2 - 2015-08-11
+/*! MapStick (backbone-mapstick) - v0.2.0 - 2015-08-27
 * Copyright (c) 2015 Mike McIver; Distributed under MIT license */
 
 (function() {
@@ -592,7 +592,7 @@
         MapStick.drawingManager.setMap(map);
         MapStick.drawingManager.setDrawingMode(this.overlayType);
         google.maps.event.clearInstanceListeners(MapStick.drawingManager);
-        return google.maps.event.addListener(MapStick.drawingManager, "overlaycomplete", (function(_this) {
+        google.maps.event.addListener(MapStick.drawingManager, "overlaycomplete", (function(_this) {
           return function(e) {
             if (MapStick.drawingManager.getDrawingMode()) {
               _this.stopDrawing();
@@ -604,6 +604,7 @@
             }
           };
         })(this));
+        return this._key_listener = google.maps.event.addDomListener(document, 'keyup', this.handleKey);
       } else {
         return console.error("please include google.maps.drawing library");
       }
@@ -620,12 +621,12 @@
 
     Overlay.prototype.cancelDraw = function() {
       this._cancelled = true;
-      return this.stopDrawing();
+      return MapStick.drawingManager.trigger("overlaycomplete");
     };
 
     Overlay.prototype.completeDraw = function() {
       this._cancelled = false;
-      return this.stopDrawing();
+      return MapStick.drawingManager.trigger("overlaycomplete");
     };
 
     Overlay.prototype.stopDrawing = function() {
