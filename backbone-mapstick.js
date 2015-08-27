@@ -621,12 +621,12 @@
 
     Overlay.prototype.cancelDraw = function() {
       this._cancelled = true;
-      return MapStick.drawingManager.trigger("overlaycomplete");
+      return this.stopDrawing();
     };
 
     Overlay.prototype.completeDraw = function() {
       this._cancelled = false;
-      return MapStick.drawingManager.trigger("overlaycomplete");
+      return this.stopDrawing();
     };
 
     Overlay.prototype.stopDrawing = function() {
