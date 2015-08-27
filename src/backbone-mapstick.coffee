@@ -449,13 +449,11 @@ class MapStick.Overlay extends Backbone.View
   # which sets off the rest of our exit from the drawing manager.
   cancelDraw: =>
     @_cancelled = true
-    MapStick.drawingManager.trigger "overlaycomplete"
-    # @stopDrawing()
+    @stopDrawing()
 
   completeDraw: =>
     @_cancelled = false
-    MapStick.drawingManager.trigger "overlaycomplete"
-    # @stopDrawing()
+    @stopDrawing()
 
   # hide the temporary overlay and drawingManager
   stopDrawing: () =>
