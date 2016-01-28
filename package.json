@@ -2,18 +2,11 @@
   "name": "backbone-mapstick",
   "version": "0.2.0",
   "title": "MapStick",
-  "company": "Spanner Ltd",
   "author": {
     "name": "Mike McIver",
-    "email": "mike@spanner.org"
+    "email": "1104mike@gmail.com"
   },
   "private": true,
-  "contributors": [
-    {
-      "name": "William Ross",
-      "email": "will@spanner.org"
-    }
-  ],
   "devDependencies": {
     "grunt": "~0.4.5",
     "grunt-bower-task": "^0.4.0",

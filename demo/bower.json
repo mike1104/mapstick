@@ -1,0 +1,16 @@
+{
+  "name": "mapstick-demo",
+  "version": "0.0.1",
+  "main": "build/demo.html",
+  "authors": [
+    "Mike McIver <mike@spanner.org>"
+  ],
+  "keywords": [
+    "mapstick",
+    "demo",
+    "backbone"
+  ],
+  "dependencies": {
+    "backbone-mapstick": "^0.2.0"
+  }
+}

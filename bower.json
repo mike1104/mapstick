@@ -3,8 +3,7 @@
   "version": "0.2.0",
   "main": "backbone-mapstick.js",
   "authors": [
-    "Mike McIver <mike@spanner.org>",
-    "William Ross <will@spanner.org>"
+    "Mike McIver <mike@spanner.org>"
   ],
   "keywords": [
     "backbone",

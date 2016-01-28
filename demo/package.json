@@ -1,0 +1,13 @@
+{
+  "name": "mapstick-demo",
+  "version": "0.0.1",
+  "title": "MapStick demo",
+  "private": true,
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-bower-task": "^0.4.0",
+    "grunt-haml2html": "^0.3.0",
+    "grunt-mincer": "^1.0.1",
+    "node-sass": "^3.4.2"
+  }
+}
